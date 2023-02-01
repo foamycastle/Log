@@ -8,8 +8,8 @@ use SplFileObject;
 use LogicException;
 use RuntimeException;
 
-class LogFile implements LogFileInterface {
-	const DEFAULT_LOG_FILENAME = "standard_error_.log";
+class LogFile extends Log  {
+	const DEFAULT_LOG_FILENAME = "change_default_log_filename.log";
 	const DEFAULT_LOG_PATH = "logs/";
 	private string $path;
 	private SplFileObject $logFile;
@@ -29,7 +29,7 @@ class LogFile implements LogFileInterface {
 		$this->setOptions($options);
 		$this->readyState=true;
 	}
-	public function write(string $data):bool{
+	function write(string $data):bool{
 		if(!str_ends_with($data,PHP_EOL)){
 			$data.=PHP_EOL;
 		}
