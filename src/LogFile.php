@@ -32,15 +32,12 @@ class LogFile implements LogFileInterface {
 	public function getRealPath(): string {
 		return $this->logFile->getRealPath() ?? "";
 	}
-
 	function getPath(): string {
 		return $this->logFile->getPath() ?? "";
 	}
-
 	function getFilename(): string {
 		return $this->logFile->getFilename() ?? "";
 	}
-
 	private function pathExplode(string $path):array{
 		return explode("/",$path);
 	}
