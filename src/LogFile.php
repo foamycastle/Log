@@ -2,6 +2,8 @@
 
 namespace FoamyCastle\Log;
 
+use DateTime;
+use DateTimeZone;
 use SplFileObject;
 use LogicException;
 use RuntimeException;
@@ -12,14 +14,19 @@ class LogFile implements LogFileInterface {
 	private string $path;
 	private SplFileObject $logFile;
 	public bool $readyState = false;
+	protected DateTime $timestamp;
+	protected string $timeFormat;
 
-	public function __construct(?string $path=null,?string $fileName=null) {
+	public function __construct(?string $path=null,?string $fileName=null,array $options=[]) {
 		if(!$this->setPath($path ?? self::DEFAULT_LOG_PATH)){
 			$this->setPath(__DIR__.DIRECTORY_SEPARATOR."logs");
 		}
 		if(!$this->setFile($fileName ?? self::DEFAULT_LOG_FILENAME)){
 			$this->setFile("logFile.log");
 		}
+
+		$this->setTime();
+		$this->setOptions($options);
 		$this->readyState=true;
 	}
 	public function write(string $data):bool{
@@ -92,5 +99,39 @@ class LogFile implements LogFileInterface {
 			return false;
 		}
 		return false;
+	}
+	public function setTimezone($timezone=null):LogFileInterface{
+		if($timezone instanceof DateTimeZone) {
+			$tz=$timezone;
+		}
+		if(is_string($timezone)){
+			if (!in_array($timezone, timezone_identifiers_list())) return $this;
+			$tz = new DateTimeZone($timezone);
+		}
+		if($timezone===null){
+			$tz=new DateTimeZone("UTC");
+		}
+		if(!isset($tz)) return $this;
+		$this->timestamp->setTimezone($tz);
+		return $this;
+	}
+	public function setTimeFormat(string $format):LogFileInterface {
+		$this->timeFormat = $format;
+		return $this;
+	}
+	public function setOptions(array $options):LogFileInterface{
+		foreach ($options as $option=>$value) {
+			switch (strtolower($option)){
+				case 'timezone': $this->timestamp->setTimezone($value);break;
+				case 'time_format': $this->timeFormat=$value;break;
+			}
+		}
+		return $this;
+	}
+	private function setTime():void{
+		$this->timestamp=new DateTime('now');
+	}
+	public function getTimestamp():string{
+		return $this->timestamp->setTimestamp(time())->format($this->timeFormat ?? DATE_RFC3339);
 	}
 }
