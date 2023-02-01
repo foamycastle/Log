@@ -92,6 +92,25 @@ class Log extends AbstractLogger {
 		return preg_replace($regexSymbols,$valueStrings,$message);
 	}
 	private function stringify($object):string{
+		if(is_array($object)){
+			if($object[0] instanceof \Closure){
+				if(isset($object[1])) {
+					$object = $object[0]->call($this, $object[1]);
+				}else {
+					$object = $object[0]->call($this);
+				}
+
+			}elseif(is_callable($object[0])){
+				if(isset($object[1])) {
+					$object = call_user_func($object[0],$object[1]);
+				}else {
+					$object = call_user_func($object[0]);
+				}
+			}
+		}
+		if($object instanceof \Closure){
+			$object = $object->call($this,$object);
+		}
 		if(is_string($object)) return $object;
 		if(is_numeric($object)) return (string)$object;
 		if(is_null($object)) return "NULL";
