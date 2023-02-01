@@ -34,7 +34,7 @@ Log::Debug(
 ```
 ##### Arguments
 `LoggingInstance $instance` - An instance of an object that implements `LoggingInstance`<br/>
-`string $message` - a string containing readable text and symbols @{symbol} that will be replaced by a corresponding key/value pair in the `$context` array.
+`string $message` - a string containing readable text and symbols @{symbol} that will be replaced by a corresponding key/value pair in the `$context` array.<br/>
 `array $context` - a key/value array that contains symbols as keys and any object as the value. The value object will be stringified and replace its symbol in the `$message` string. 
 #### Abstract Methods
 ```php
