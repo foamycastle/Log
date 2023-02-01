@@ -1,11 +1,9 @@
 <?php
 
 namespace FoamyCastle\Log;
-include "LogLevel.php";
-include "LogFileInterface.php";
 
-use Psr\Log\AbstractLogger;
-use Psr\Log\LoggerInterface;
+use FoamyCastle\Log\AbstractLogger;
+use FoamyCastle\Log\LoggerInterface;
 use FoamyCastle\Log\LogLevel;
 use FoamyCastle\Log\LogFileInterface;
 
@@ -33,7 +31,7 @@ class Log extends AbstractLogger {
 	 *
 	 * @return void
 	 */
-	public function __invoke(string $message,array $context=[]):Log{
+	public function __invoke(string|\Stringable|\Closure $message,array $context=[]):Log{
 		$this->log($this->defaultLevel,$message,$context);
 		return $this;
 	}
@@ -123,28 +121,28 @@ class Log extends AbstractLogger {
 	public function getTimestamp():string{
 		return $this->timestamp->setTimestamp(time())->format($this->timeFormat ?? DATE_RFC3339);
 	}
-	public function emergency(\Stringable|string $message, array $context = []): void {
+	public function emergency(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::EMERGENCY,$message,$context);
 	}
-	public function alert(\Stringable|string $message, array $context = []): void {
+	public function alert(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::ALERT,$message,$context);
 	}
-	public function critical(\Stringable|string $message, array $context = []): void {
+	public function critical(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::CRITICAL,$message,$context);
 	}
-	public function error(\Stringable|string $message, array $context = []): void {
+	public function error(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::ERROR,$message,$context);
 	}
-	public function warning(\Stringable|string $message, array $context = []): void {
+	public function warning(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::WARNING,$message,$context);
 	}
-	public function notice(\Stringable|string $message, array $context = []): void {
+	public function notice(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::NOTICE,$message,$context);
 	}
-	public function info(\Stringable|string $message, array $context = []): void {
+	public function info(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::INFO,$message,$context);
 	}
-	public function debug(\Stringable|string $message, array $context = []): void {
+	public function debug(\Stringable|string|\Closure $message, array $context = []): void {
 		$this->log(LogLevel::DEBUG,$message,$context);
 	}
 	/**
@@ -154,7 +152,8 @@ class Log extends AbstractLogger {
 	 *
 	 * @return void
 	 */
-	public function log($level, \Stringable|string $message, array $context = []): void {
+	public function log($level, \Stringable|string|\Closure $message, array $context = []): void {
+		$message=$this->stringify($message);
 		if($context){
 			$message=$this->replaceContextSymbols($message,$context);
 		}
