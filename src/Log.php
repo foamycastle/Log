@@ -2,40 +2,45 @@
 
 namespace FoamyCastle\Log;
 
+use DateTime;
 use Stringable;
 use Closure;
 
-abstract class Log implements LogFileInterface {
-	public static function Emergency(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::EMERGENCY,$message,$context);
+abstract class Log implements LoggingInstance {
+	public bool $readyState;
+	protected string $timeFormat;
+	protected DateTime $timestamp;
+
+	public static function Emergency(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::EMERGENCY,$message,$context);
 	}
-	public static function Alert(LogFileInterface $logFile,Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::ALERT,$message,$context);
+	public static function Alert(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::ALERT,$message,$context);
 	}
-	public static function Critical(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::CRITICAL,$message,$context);
+	public static function Critical(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::CRITICAL,$message,$context);
 	}
-	public static function Error(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::ERROR,$message,$context);
+	public static function Error(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::ERROR,$message,$context);
 	}
-	public static function Warning(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::WARNING,$message,$context);
+	public static function Warning(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::WARNING,$message,$context);
 	}
-	public static function Notice(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::NOTICE,$message,$context);
+	public static function Notice(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::NOTICE,$message,$context);
 	}
-	public static function Info(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::INFO,$message,$context);
+	public static function Info(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::INFO,$message,$context);
 	}
-	public static function Debug(LogFileInterface $logFile, Stringable|string|Closure $message, array $context = []): void {
-		self::log($logFile,LogLevel::DEBUG,$message,$context);
+	public static function Debug(LoggingInstance $instance, Stringable|string|Closure $message, array $context = []): void {
+		self::log($instance,LogLevel::DEBUG,$message,$context);
 	}
-	private static function log(LogFileInterface $logFile, LogLevel $level, Stringable|string|Closure $message, array $context = []): void {
+	private static function log(LoggingInstance $instance, LogLevel $level, Stringable|string|Closure $message, array $context = []): void {
 		$message=self::stringify($message);
 		if($context){
 			$message=self::replaceContextSymbols($message,$context);
 		}
-		$logFile->write($level->name.": ".$logFile->getTimestamp()." $message");
+		$instance->write($level->name.": ".$instance->getTimestamp()." $message");
 	}
 	private static function replaceContextSymbols(string $message, array $symbolTable):string{
 		/*
@@ -56,14 +61,14 @@ abstract class Log implements LogFileInterface {
 		//an array may be a Closure()=>[args]
 		//A closure MUST return a primitive type lest it be var_dump'd by a call to print_r
 		if(is_array($object)){
-			if($object[0] instanceof Closure){
+			if(isset($object[0]) && $object[0] instanceof Closure){
 				if(isset($object[1])) {
 					$object = $object[0]->call($object[0], $object[1]);
 				}else {
 					$object = $object[0]->call($object[0]);
 				}
 			//an array may also be a callable with [args]
-			}elseif(is_callable($object[0])){
+			}elseif(isset($object[0]) && is_callable($object[0])){
 				if(isset($object[1])) {
 					$object = call_user_func($object[0],$object[1]);
 				}else {
@@ -85,4 +90,5 @@ abstract class Log implements LogFileInterface {
 		}
 		return "(no string representation available)";
 	}
+	abstract protected function write(string $message):bool;
 }

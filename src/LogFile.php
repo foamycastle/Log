@@ -13,9 +13,6 @@ class LogFile extends Log  {
 	const DEFAULT_LOG_PATH = "logs/";
 	private string $path;
 	private SplFileObject $logFile;
-	public bool $readyState = false;
-	protected DateTime $timestamp;
-	protected string $timeFormat;
 
 	public function __construct(?string $path=null,?string $fileName=null,array $options=[]) {
 		if(!$this->setPath($path ?? self::DEFAULT_LOG_PATH)){
@@ -29,12 +26,12 @@ class LogFile extends Log  {
 		$this->setOptions($options);
 		$this->readyState=true;
 	}
-	function write(string $data):bool{
-		if(!str_ends_with($data,PHP_EOL)){
-			$data.=PHP_EOL;
+	function write(string $message):bool{
+		if(!str_ends_with($message,PHP_EOL)){
+			$message.=PHP_EOL;
 		}
 		if($this->readyState){
-			return $this->logFile->fwrite($data)==strlen($data);
+			return $this->logFile->fwrite($message)==strlen($message);
 		}
 		return false;
 	}
@@ -44,7 +41,7 @@ class LogFile extends Log  {
 	function getPath(): string {
 		return $this->logFile->getPath() ?? "";
 	}
-	function getFilename(): string {
+	public function getFilename(): string {
 		return $this->logFile->getFilename() ?? "";
 	}
 	private function pathExplode(string $path):array{
@@ -100,7 +97,7 @@ class LogFile extends Log  {
 		}
 		return false;
 	}
-	public function setTimezone($timezone=null):LogFileInterface{
+	public function setTimezone($timezone=null):LoggingInstance{
 		if($timezone instanceof DateTimeZone) {
 			$tz=$timezone;
 		}
@@ -115,15 +112,15 @@ class LogFile extends Log  {
 		$this->timestamp->setTimezone($tz);
 		return $this;
 	}
-	public function setTimeFormat(string $format):LogFileInterface {
+	public function setTimeFormat(string $format):LoggingInstance {
 		$this->timeFormat = $format;
 		return $this;
 	}
-	public function setOptions(array $options):LogFileInterface{
+	public function setOptions(array $options):LoggingInstance{
 		foreach ($options as $option=>$value) {
 			switch (strtolower($option)){
-				case 'timezone': $this->timestamp->setTimezone($value);break;
-				case 'time_format': $this->timeFormat=$value;break;
+				case 'timezone':$this->setTimezone($value);break;
+				case 'time_format': $this->setTimeFormat($value);break;
 			}
 		}
 		return $this;
