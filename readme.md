@@ -5,10 +5,15 @@ A (slightly modified) PSR-3 logging tool. Instead of the logging instance model,
 Establish any number of `LogFile` objects that each represent a different log file or location. Then use the static methods named by the different log levels to print lines to the log. Any data type may be used as a message, even callables and closures.
 ```php
 //Establish a log file instance
-$logFile = new LogFile("/path/to/log/file/","logfile.name.log",['option'=>'value']);
+$logFile = (new LogFile("/path/to/log/file/","logfile.name.log",['option'=>'value']))
+                ->setTimeZone(new DateTimeZone('America/Chicago'))
+                ->setTimeFormat(DATE_RFC1123);
 
 //static method indicates log level
 Log::Alert($logFile,"Log Message with @{variable}",['variable'=>'variables!']);
+
+//output to log file
+ALERT: Wed, 01 Feb 2023 16:41:19 -0600 Log Message with variables!
 ```
 ### `Log` API
 #### Static Methods
