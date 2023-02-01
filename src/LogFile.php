@@ -2,13 +2,15 @@
 
 namespace FoamyCastle\Log;
 
-use FoamyCastle\Log\LogFileInterface;
+use SplFileObject;
+use LogicException;
+use RuntimeException;
 
 class LogFile implements LogFileInterface {
 	const DEFAULT_LOG_FILENAME = "standard_error_.log";
 	const DEFAULT_LOG_PATH = "logs/";
 	private string $path;
-	private \SplFileObject $logFile;
+	private SplFileObject $logFile;
 	public bool $readyState = false;
 
 	public function __construct(?string $path=null,?string $fileName=null) {
@@ -78,15 +80,15 @@ class LogFile implements LogFileInterface {
 			? $fileName
 			: $defaultFileName;
 		try{
-			$this->logFile = new \SplFileObject($this->joinPathAndFile($this->path, $fileName), 'a');
+			$this->logFile = new SplFileObject($this->joinPathAndFile($this->path, $fileName), 'a');
 			return true;
-		}catch(\LogicException){
+		}catch(LogicException){
 			try{
-				$this->logFile = @new \SplFileObject($this->joinPathAndFile($this->path . $fileName, $defaultFileName), 'a');
-			}catch (\RuntimeException) {
+				$this->logFile = @new SplFileObject($this->joinPathAndFile($this->path . $fileName, $defaultFileName), 'a');
+			}catch (RuntimeException) {
 				return false;
 			}
-		}catch (\RuntimeException){
+		}catch (RuntimeException){
 			return false;
 		}
 		return false;
