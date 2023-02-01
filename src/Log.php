@@ -33,8 +33,9 @@ class Log extends AbstractLogger {
 	 *
 	 * @return void
 	 */
-	public function __invoke(string $message,array $context=[]):void{
+	public function __invoke(string $message,array $context=[]):Log{
 		$this->log($this->defaultLevel,$message,$context);
+		return $this;
 	}
 	public function setTimezone($timezone=null):Log{
 		if($timezone instanceof \DateTimeZone) {
@@ -95,7 +96,7 @@ class Log extends AbstractLogger {
 		if(is_numeric($object)) return (string)$object;
 		if(is_null($object)) return "NULL";
 		if(is_bool($object)) return $object ? "TRUE":"FALSE";
-		if(is_object($object)||is_array()){
+		if(is_object($object)||is_array($object)){
 			return print_r($object,true);
 		}
 		return "(no string representation available)";
