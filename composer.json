@@ -15,7 +15,7 @@
   },
   "autoload": {
     "psr-4": {
-      "FoamyCastle//Log//": "src/"
+      "FoamyCastle\\Log\\": "src/"
     }
   }
 }
